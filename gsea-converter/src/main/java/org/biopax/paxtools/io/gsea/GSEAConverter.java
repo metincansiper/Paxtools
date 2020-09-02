@@ -274,10 +274,27 @@ public class GSEAConverter
 		// generate GSEA entries for each species
 		final Collection<GMTEntry> toReturn = new ArrayList<GMTEntry>();
 		for (final String org : orgToPrsMap.keySet()) {
-			if(orgToPrsMap.get(org).size() > 0) {
+			Set<SequenceEntityReference> prs = orgToPrsMap.get(org);
+			if(prs.size() > 0) {
+				Map<String, Integer> clCounts = new HashMap<String, Integer>();
+				for ( SequenceEntityReference pr : prs ) {
+					Set<SimplePhysicalEntity> entities = pr.getEntityReferenceOf();
+					for (SimplePhysicalEntity ent : entities) {
+						Set<String> terms = ent.getCellularLocation().getTerm();
+						for (String term : terms) {
+							if (!clCounts.containsKey(term)) {
+								clCounts.put(term, 0);
+							}
+
+							clCounts.put(term, clCounts.get(term) + 1);
+						}
+
+					}
+				}
+
 				GMTEntry GMTEntry = new GMTEntry(uri, org, idType,
-						String.format("name: %s; datasource: %s", name, dataSource));
-				processEntityReferences(orgToPrsMap.get(org), GMTEntry);
+						String.format("name: %s; datasource: %s", name, dataSource), clCounts);
+				processEntityReferences(prs, GMTEntry);
 				toReturn.add(GMTEntry);
 			}
 		}

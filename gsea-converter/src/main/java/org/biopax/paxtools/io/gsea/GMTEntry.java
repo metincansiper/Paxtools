@@ -2,8 +2,12 @@ package org.biopax.paxtools.io.gsea;
 
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.biopax.paxtools.model.level3.CellularLocationVocabulary;
 
 /**
  * This package-private class represents an entry found in a GMT format file.
@@ -16,10 +20,11 @@ final class GMTEntry {
     final private String taxID;
     final private String idType;
     final private String description;
+    private final Map<String, Integer> cellularLocCounts;
     private final Set<String> identifiers;
 
-    public GMTEntry(String name, String taxID, String idType, String description) {
-    	if(name == null || taxID == null || idType == null || description == null) 
+    public GMTEntry(String name, String taxID, String idType, String description, Map<String, Integer> cellularLocCounts) {
+    	if(name == null || taxID == null || idType == null || description == null || cellularLocCounts == null)
     		throw new IllegalArgumentException("Null paraneter (not allowed)");
     	
 		this.name = name;
@@ -27,10 +32,16 @@ final class GMTEntry {
 		this.idType = idType;
 		this.description = description;		
 		this.identifiers = new TreeSet<String>();
+		this.cellularLocCounts = cellularLocCounts;
 	}
-    
-    
-    public String name() {
+
+
+    public GMTEntry(String name, String taxID, String idType, String description) {
+		this(name, taxID, idType, description, new HashMap<String, Integer>());
+	}
+
+
+	public String name() {
         return name;
     }
 
@@ -75,6 +86,9 @@ final class GMTEntry {
 			toReturn.append("\t").append(id);
 		}
 
+		for (String cl : cellularLocCounts.keySet()) {
+			toReturn.append("\t").append(cl + ": " + cellularLocCounts.get(cl));
+		}
         return toReturn.toString();
     }
 }
